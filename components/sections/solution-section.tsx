@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useState } from "react"
 import { Database, CreditCard, BarChart3, ArrowRight, Check, X, AlertCircle } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +24,6 @@ export function SolutionSection() {
   const [scrollY, setScrollY] = useState(0)
   const [activeTab, setActiveTab] = useState("features")
   const [showDemo, setShowDemo] = useState(false)
-  const videoRef = useRef(null)
 
   useEffect(() => {
     const handleScroll = () => {

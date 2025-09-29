@@ -1,17 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Copy, Play, Code } from "lucide-react"
 
 export function ApiExplorer() {
-  const [activeTab, setActiveTab] = useState("creditCheck")
-  const [copied, setCopied] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
-  const [response, setResponse] = useState(null)
-
   const apiEndpoints = {
     creditCheck: {
       title: "Verificação de Crédito",
@@ -102,11 +97,46 @@ export function ApiExplorer() {
     },
   }
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  type EndpointKey = keyof typeof apiEndpoints
+
+  const [activeTab, setActiveTab] = useState<EndpointKey>("creditCheck")
+  const [copied, setCopied] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
+  const [response, setResponse] = useState<string | null>(null)
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const copyToClipboard = useCallback(async (text: string) => {
+    try {
+      if (typeof navigator !== "undefined" && "clipboard" in navigator) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const textarea = document.createElement("textarea")
+        textarea.value = text
+        textarea.setAttribute("readonly", "")
+        textarea.style.position = "absolute"
+        textarea.style.left = "-9999px"
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand("copy")
+        document.body.removeChild(textarea)
+      }
+      setCopied(true)
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current)
+      }
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      console.error("Erro ao copiar para a área de transferência", error)
+    }
+  }, [])
 
   const runApiRequest = () => {
     setIsRunning(true)
@@ -126,6 +156,11 @@ export function ApiExplorer() {
             <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Documentação Interativa</span>
             <Code className="h-4 w-4" />
           </div>
+          {copied ? (
+            <span className="ml-3 rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-medium text-emerald-100" role="status">
+              Conteúdo copiado!
+            </span>
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="p-6">

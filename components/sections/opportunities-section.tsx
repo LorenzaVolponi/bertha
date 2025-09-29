@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { LineChart, Users, Database, ArrowRight } from "lucide-react"
 import { useInView, useAnimation } from "framer-motion"
 
@@ -15,8 +15,6 @@ export function OpportunitiesSection() {
   const controls = useAnimation()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, threshold: 0.1 })
-  const [activeTab, setActiveTab] = useState("overview")
-
   useEffect(() => {
     if (inView) {
       controls.start("visible")
@@ -66,7 +64,7 @@ export function OpportunitiesSection() {
             </SafeMotionDiv>
 
             <SafeMotionDiv variants={itemVariants}>
-              <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+              <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
                   <TabsTrigger value="overview">Visão Geral</TabsTrigger>
                   <TabsTrigger value="benefits">Benefícios</TabsTrigger>
