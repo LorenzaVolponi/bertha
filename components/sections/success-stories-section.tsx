@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, ExternalLink, Play, Pause } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -15,14 +15,34 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
+type CaseStudy = {
+  title: string
+  category: string
+  description: string
+  results: string[]
+  color: string
+  fullCase: {
+    company: string
+    industry: string
+    challenge: string
+    solution: string
+    implementation: string
+    testimonial: {
+      quote: string
+      author: string
+      role: string
+    }
+  }
+}
+
 export function SuccessStoriesSection() {
   const [activeCase, setActiveCase] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [showCaseDetails, setShowCaseDetails] = useState(false)
-  const [selectedCase, setSelectedCase] = useState(null)
-  const autoPlayRef = useRef(null)
+  const [selectedCase, setSelectedCase] = useState<CaseStudy | null>(null)
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,105 +60,123 @@ export function SuccessStoriesSection() {
     }
   }, [scrollY])
 
+  const cases = useMemo<CaseStudy[]>(
+    () => [
+      {
+        title: "ERP Líder",
+        category: "Integração",
+        description:
+          "Parceria com ERP líder para oferecer crédito integrado a seus clientes, resultando em aumento de 300% no volume de operações.",
+        results: [
+          "Aumento de 300% no volume de operações",
+          "Redução de 70% no tempo de processamento",
+          "Economia de R$ 2 milhões em custos operacionais",
+        ],
+        color: "#244E5B",
+        fullCase: {
+          company: "SoftGestão ERP",
+          industry: "Software de Gestão Empresarial",
+          challenge:
+            "A SoftGestão, líder em soluções ERP para médias empresas, buscava oferecer opções de financiamento para seus clientes adquirirem módulos adicionais e expandirem o uso da plataforma, mas enfrentava dificuldades com processos manuais e altas taxas de abandono.",
+          solution:
+            "Implementação do CreditOps Plug-in e Orquestrador APIs Hub da Bertha Integradora, permitindo oferta de crédito diretamente na interface do ERP, com análise automática e aprovação em tempo real.",
+          implementation:
+            "Integração concluída em 3 semanas, com treinamento da equipe e customização da jornada do usuário.",
+          testimonial: {
+            quote:
+              "A parceria com a Bertha Integradora transformou nossa capacidade de oferecer soluções financeiras. Nossos clientes agora podem expandir seus negócios com facilidade, e vimos um crescimento impressionante nas vendas de módulos adicionais.",
+            author: "Carlos Mendes",
+            role: "Diretor de Produto da SoftGestão",
+          },
+        },
+      },
+      {
+        title: "Marketplace B2B",
+        category: "E-commerce",
+        description:
+          "Plataforma de e-commerce que aumentou vendas com financiamento no checkout, melhorando conversão e ticket médio.",
+        results: [
+          "Aumento de 150% na retenção de vendedores",
+          "Crescimento de 80% no GMV",
+          "Implementação em apenas 3 semanas",
+        ],
+        color: "#598389",
+        fullCase: {
+          company: "TechSupply",
+          industry: "Marketplace B2B de Equipamentos de TI",
+          challenge:
+            "A TechSupply, marketplace B2B de equipamentos de TI, enfrentava dificuldades com o alto valor dos produtos, resultando em ciclos de vendas longos e baixa conversão devido à falta de opções de financiamento integradas.",
+          solution:
+            "Implementação completa da solução Bertha Integradora, oferecendo financiamento no checkout com múltiplas opções de pagamento e parcelamento para compradores B2B.",
+          implementation:
+            "Integração em 3 semanas com a plataforma existente, incluindo white-label completo e personalização da experiência do usuário.",
+          testimonial: {
+            quote:
+              "A integração com a Bertha revolucionou nosso marketplace. Conseguimos não apenas aumentar significativamente nosso GMV, mas também melhorar a experiência tanto para compradores quanto para vendedores. O processo de implementação foi surpreendentemente rápido e sem complicações.",
+            author: "Mariana Silva",
+            role: "CEO da TechSupply",
+          },
+        },
+      },
+      {
+        title: "Plataforma de Saúde",
+        category: "Healthtech",
+        description:
+          "Integração de financiamento para compra de equipamentos médicos, facilitando o acesso a tecnologia de ponta para clínicas.",
+        results: [
+          "Aumento de 200% nas vendas de equipamentos",
+          "Redução de 50% no tempo de fechamento",
+          "Satisfação do cliente de 98%",
+        ],
+        color: "#82A2A6",
+        fullCase: {
+          company: "MedTech Solutions",
+          industry: "Plataforma de Equipamentos Médicos",
+          challenge:
+            "A MedTech Solutions, plataforma especializada em equipamentos médicos de alta tecnologia, enfrentava dificuldades para vender equipamentos de alto valor para clínicas de pequeno e médio porte devido à falta de opções de financiamento acessíveis.",
+          solution:
+            "Implementação do Orquestrador APIs Hub e Compliance Engine da Bertha Integradora, permitindo oferecer financiamento personalizado com análise de crédito específica para o setor de saúde.",
+          implementation:
+            "Integração em 4 semanas, incluindo desenvolvimento de modelos de risco específicos para o setor de saúde e conformidade com regulamentações do setor.",
+          testimonial: {
+            quote:
+              "A parceria com a Bertha Integradora nos permitiu democratizar o acesso a equipamentos médicos de ponta. Clínicas que antes não conseguiam adquirir tecnologias avançadas agora podem oferecer melhores serviços aos seus pacientes, graças às opções de financiamento que integramos à nossa plataforma.",
+            author: "Dr. Roberto Campos",
+            role: "Diretor de Operações da MedTech Solutions",
+          },
+        },
+      },
+    ],
+    [],
+  )
+
+  const totalCases = cases.length
+
   useEffect(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current)
+      autoPlayRef.current = null
+    }
+
     if (isVisible && isPlaying) {
       autoPlayRef.current = setInterval(() => {
-        setActiveCase((prev) => (prev < cases.length - 1 ? prev + 1 : 0))
+        setActiveCase((prev) => (prev < totalCases - 1 ? prev + 1 : 0))
       }, 5000)
-
-      return () => clearInterval(autoPlayRef.current)
     }
-  }, [isVisible, isPlaying])
 
-  const cases = [
-    {
-      title: "ERP Líder",
-      category: "Integração",
-      description:
-        "Parceria com ERP líder para oferecer crédito integrado a seus clientes, resultando em aumento de 300% no volume de operações.",
-      results: [
-        "Aumento de 300% no volume de operações",
-        "Redução de 70% no tempo de processamento",
-        "Economia de R$ 2 milhões em custos operacionais",
-      ],
-      color: "#244E5B",
-      fullCase: {
-        company: "SoftGestão ERP",
-        industry: "Software de Gestão Empresarial",
-        challenge:
-          "A SoftGestão, líder em soluções ERP para médias empresas, buscava oferecer opções de financiamento para seus clientes adquirirem módulos adicionais e expandirem o uso da plataforma, mas enfrentava dificuldades com processos manuais e altas taxas de abandono.",
-        solution:
-          "Implementação do CreditOps Plug-in e Orquestrador APIs Hub da Bertha Integradora, permitindo oferta de crédito diretamente na interface do ERP, com análise automática e aprovação em tempo real.",
-        implementation:
-          "Integração concluída em 3 semanas, com treinamento da equipe e customização da jornada do usuário.",
-        testimonial: {
-          quote:
-            "A parceria com a Bertha Integradora transformou nossa capacidade de oferecer soluções financeiras. Nossos clientes agora podem expandir seus negócios com facilidade, e vimos um crescimento impressionante nas vendas de módulos adicionais.",
-          author: "Carlos Mendes",
-          role: "Diretor de Produto da SoftGestão",
-        },
-      },
-    },
-    {
-      title: "Marketplace B2B",
-      category: "E-commerce",
-      description:
-        "Plataforma de e-commerce que aumentou vendas com financiamento no checkout, melhorando conversão e ticket médio.",
-      results: [
-        "Aumento de 150% na retenção de vendedores",
-        "Crescimento de 80% no GMV",
-        "Implementação em apenas 3 semanas",
-      ],
-      color: "#598389",
-      fullCase: {
-        company: "TechSupply",
-        industry: "Marketplace B2B de Equipamentos de TI",
-        challenge:
-          "A TechSupply, marketplace B2B de equipamentos de TI, enfrentava dificuldades com o alto valor dos produtos, resultando em ciclos de vendas longos e baixa conversão devido à falta de opções de financiamento integradas.",
-        solution:
-          "Implementação completa da solução Bertha Integradora, oferecendo financiamento no checkout com múltiplas opções de pagamento e parcelamento para compradores B2B.",
-        implementation:
-          "Integração em 3 semanas com a plataforma existente, incluindo white-label completo e personalização da experiência do usuário.",
-        testimonial: {
-          quote:
-            "A integração com a Bertha revolucionou nosso marketplace. Conseguimos não apenas aumentar significativamente nosso GMV, mas também melhorar a experiência tanto para compradores quanto para vendedores. O processo de implementação foi surpreendentemente rápido e sem complicações.",
-          author: "Mariana Silva",
-          role: "CEO da TechSupply",
-        },
-      },
-    },
-    {
-      title: "Plataforma de Saúde",
-      category: "Healthtech",
-      description:
-        "Integração de financiamento para compra de equipamentos médicos, facilitando o acesso a tecnologia de ponta para clínicas.",
-      results: [
-        "Aumento de 200% nas vendas de equipamentos",
-        "Redução de 50% no tempo de fechamento",
-        "Satisfação do cliente de 98%",
-      ],
-      color: "#82A2A6",
-      fullCase: {
-        company: "MedTech Solutions",
-        industry: "Plataforma de Equipamentos Médicos",
-        challenge:
-          "A MedTech Solutions, plataforma especializada em equipamentos médicos de alta tecnologia, enfrentava dificuldades para vender equipamentos de alto valor para clínicas de pequeno e médio porte devido à falta de opções de financiamento acessíveis.",
-        solution:
-          "Implementação do Orquestrador APIs Hub e Compliance Engine da Bertha Integradora, permitindo oferecer financiamento personalizado com análise de crédito específica para o setor de saúde.",
-        implementation:
-          "Integração em 4 semanas, incluindo desenvolvimento de modelos de risco específicos para o setor de saúde e conformidade com regulamentações do setor.",
-        testimonial: {
-          quote:
-            "A parceria com a Bertha Integradora nos permitiu democratizar o acesso a equipamentos médicos de ponta. Clínicas que antes não conseguiam adquirir tecnologias avançadas agora podem oferecer melhores serviços aos seus pacientes, graças às opções de financiamento que integramos à nossa plataforma.",
-          author: "Dr. Roberto Campos",
-          role: "Diretor de Operações da MedTech Solutions",
-        },
-      },
-    },
-  ]
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current)
+        autoPlayRef.current = null
+      }
+    }
+  }, [isVisible, isPlaying, totalCases])
 
   const nextCase = () => {
-    clearInterval(autoPlayRef.current)
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current)
+      autoPlayRef.current = null
+    }
     setActiveCase((prev) => (prev < cases.length - 1 ? prev + 1 : 0))
     if (isPlaying) {
       autoPlayRef.current = setInterval(() => {
@@ -148,7 +186,10 @@ export function SuccessStoriesSection() {
   }
 
   const prevCase = () => {
-    clearInterval(autoPlayRef.current)
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current)
+      autoPlayRef.current = null
+    }
     setActiveCase((prev) => (prev > 0 ? prev - 1 : cases.length - 1))
     if (isPlaying) {
       autoPlayRef.current = setInterval(() => {
@@ -158,13 +199,14 @@ export function SuccessStoriesSection() {
   }
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying)
-    if (isPlaying) {
+    setIsPlaying((prev) => !prev)
+    if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current)
+      autoPlayRef.current = null
     }
   }
 
-  const openCaseDetails = (caseIndex) => {
+  const openCaseDetails = (caseIndex: number) => {
     setSelectedCase(cases[caseIndex])
     setShowCaseDetails(true)
   }
@@ -346,7 +388,9 @@ export function SuccessStoriesSection() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm italic text-slate-600 mb-2">"{selectedCase.fullCase.testimonial.quote}"</p>
+                      <p className="text-sm italic text-slate-600 mb-2">
+                        &quot;{selectedCase.fullCase.testimonial.quote}&quot;
+                      </p>
                       <div>
                         <p className="text-sm font-medium">{selectedCase.fullCase.testimonial.author}</p>
                         <p className="text-xs text-slate-500">{selectedCase.fullCase.testimonial.role}</p>

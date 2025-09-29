@@ -205,7 +205,7 @@ export function IntegrationSimulator() {
                       </div>
                       <div className="ml-3">
                         <p className="text-sm text-slate-600">
-                          Adicione o botão "Simular Financiamento" em sua plataforma
+                          Adicione o botão &quot;Simular Financiamento&quot; em sua plataforma
                         </p>
                       </div>
                     </div>
@@ -247,7 +247,7 @@ export function IntegrationSimulator() {
                   </div>
                   <h3 className="text-lg font-medium text-bertha-blue mb-2">Simulador de Crédito</h3>
                   <p className="text-slate-600 text-sm mb-4">
-                    Ajuste os parâmetros ao lado e clique em "Simular Empréstimo" para ver como ficaria a integração em
+                    Ajuste os parâmetros ao lado e clique em &quot;Simular Empréstimo&quot; para ver como ficaria a integração em
                     sua plataforma.
                   </p>
                   <div className="flex items-center justify-center space-x-2 text-xs text-slate-500">
